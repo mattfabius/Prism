@@ -39,6 +39,12 @@
     <ClCompile Include="Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -50,6 +56,12 @@
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.vert">
@@ -58,12 +70,45 @@
     <None Include="default.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="phong.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="phong.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="lightSource.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="gouraud.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="gouraud.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="rounded_color.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="test.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="test.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="container.jpg">
       <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="awesomeface.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="container2.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="container2_specular.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="matrix.jpg">
       <Filter>Resource Files\Textures</Filter>
     </Image>
   </ItemGroup>

@@ -9,12 +9,22 @@ Camera::Camera()
 Camera::Camera(glm::vec3 pos) 
 {
 	position = pos;
+	collider.SetPosition(pos);
+	updateCameraVectors();
+}
+
+Camera::Camera(glm::vec3 pos, bool isFlying)
+{
+	position = pos;
+	collider.SetPosition(pos);
+	isFlightCam = isFlying;
 	updateCameraVectors();
 }
 
 Camera::Camera(glm::vec3 pos, glm::vec3 rot, float fov)
 {
 	position = pos;
+	collider.SetPosition(pos);
 	rotation = rot;
 	fieldOfView = fov;
 	updateCameraVectors();
@@ -29,7 +39,17 @@ void Camera::Move(glm::vec3 translation)
 {
 	position += right * translation.x;
 	position += up * translation.y;
-	position += glm::vec3(forward.x, 0.0f, forward.z) * translation.z;
+	glm::vec3 moveForward = forward;
+	if (!isFlightCam)
+		moveForward.y = 0.0f;
+	position += moveForward * translation.z;
+	collider.SetPosition(position);
+}
+
+void Camera::MoveWorldPosition(glm::vec3 translation)
+{
+	position += translation;
+	collider.SetPosition(position);
 }
 
 void Camera::Rotate(float yaw, float pitch)
