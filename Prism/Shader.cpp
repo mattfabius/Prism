@@ -77,7 +77,12 @@ void Shader::SetMat4(const std::string& name, glm::mat4 value) const
 
 GLint Shader::GetUniformLocation(const std::string& name) const
 {
-	return glGetUniformLocation(ID, name.c_str());
+	GLint i = glGetUniformLocation(ID, name.c_str());
+	if (i == -1)
+	{
+		std::cout << "Uniform " << name << " does not exist" << std::endl;
+	}
+	return i;
 }
 
 std::string Shader::readShaderCodeFile(const char* shaderPath)

@@ -239,8 +239,36 @@ int main()
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
-
 	Collider boxColliders[10];
+
+	glm::vec3 pointLightPositions[] = {
+		glm::vec3(0.7f, 0.2f, 2.0f),
+		glm::vec3(2.3f, -3.3f, -4.0f),
+		glm::vec3(-4.0f, 2.0f, -12.0f),
+		glm::vec3(0.0f, 0.0f, -3.0f)
+	};
+
+	glm::vec3 pointLightColor(0.5f);
+	for (int i = 0; i < 4; i++)
+	{
+		std::string attribute = "pointLights[" + std::to_string(i);
+		attribute += "].";
+		lightingShader.SetFloat(attribute + "constant", 1.0f);
+		lightingShader.SetFloat(attribute + "linear", 0.22f);
+		lightingShader.SetFloat(attribute + "quadratic", 0.2f);
+
+		lightingShader.SetVec3(attribute + "position", pointLightPositions[i]);
+
+		lightingShader.SetVec3(attribute + "ambient", pointLightColor * 0.2f);
+		lightingShader.SetVec3(attribute + "diffuse", pointLightColor * 0.5f);
+		lightingShader.SetVec3(attribute + "specular", pointLightColor);
+	}
+
+	glm::vec3 dirLightColor(0.25f);
+	lightingShader.SetVec3("directionalLight.direction", -0.2f, -1.0f, -0.3f);
+	lightingShader.SetVec3("directionalLight.ambient", dirLightColor * 0.2f);
+	lightingShader.SetVec3("directionalLight.diffuse", dirLightColor * 0.5f);
+	lightingShader.SetVec3("directionalLight.specular", dirLightColor);
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -259,32 +287,22 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		lightingShader.Activate();
-		//defaultShader.SetFloat("mixPercent", mixPercent);
 
 		// camera
 		glm::mat4 view = glm::mat4(1.0f);
-		//view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		view = camera.GetViewMatrix();
 
 		glm::mat4 projection = glm::perspective(glm::radians(camera.fieldOfView), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
-		//defaultShader.SetMat4("model", model);
 		lightingShader.SetMat4("view", view);
 		lightingShader.SetMat4("projection", projection); //this rarely changes so could be set outside the render loop
 		lightingShader.SetVec3("viewPos", camera.position);
 
-		glm::vec3 lightPos(sin(glfwGetTime()) * 2.0f, 1.0f, cos(glfwGetTime()) * 2.0f);
-		//lightingShader.SetVec3("light.position", lightPos);
-		//lightingShader.SetVec3("light.direction", -0.2f, -1.0f, -0.3f);
 		lightingShader.SetVec3("light.position", camera.position);
 		lightingShader.SetVec3("light.direction", camera.forward);
 		lightingShader.SetFloat("light.innerCutoff", glm::cos(glm::radians(12.5f)));
 		lightingShader.SetFloat("light.outerCutoff", glm::cos(glm::radians(17.5f)));
-		lightingShader.SetFloat("time", glfwGetTime());
 
 		glm::vec3 lightColor(1.0f, 1.0f, 0.85f);
-		//lightColor.x = sin(glfwGetTime() * 2.0f);
-		//lightColor.y = sin(glfwGetTime() * 0.7f);
-		//lightColor.z = sin(glfwGetTime() * 1.3f);
 		lightingShader.SetVec3("light.ambient", lightColor * 0.2f);
 		lightingShader.SetVec3("light.diffuse", lightColor * 0.5f);
 		lightingShader.SetVec3("light.specular", lightColor);
@@ -297,43 +315,42 @@ int main()
 		lightingShader.SetMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		// cubes
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
 			boxColliders[i] = Collider(cubePositions[i], glm::vec3(1.0f));
-			//float angle = 20.0f * i;
-			//model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			lightingShader.SetMat4("model", model);
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-		//lightingShader.Activate();
-		//lightingShader.SetMat4("view", view);
-		//lightingShader.SetMat4("projection", projection); //this rarely changes so could be set outside the render loop
-		//lightingShader.SetVec3("lightPos", lightPos);
-		//lightingShader.SetMat4("model", model);
-
-		glBindVertexArray(VAOs[1]);
+		// ground plane
+		/*glBindVertexArray(VAOs[1]);
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f));
 		lightingShader.SetMat4("model", model);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);*/
 
 		// light source
-	
 		lightSourceShader.Activate();
-		lightSourceShader.SetVec3("sourceColor", lightColor);
+		lightSourceShader.SetVec3("sourceColor", pointLightColor);
 		glBindVertexArray(lightVAO);
-		glm::mat4 lightModel = glm::mat4(1.0f);
-		lightModel = glm::translate(lightModel, lightPos);
-		lightModel = glm::scale(lightModel, glm::vec3(0.2f));
-		lightSourceShader.SetMat4("model", lightModel);
-		lightSourceShader.SetMat4("view", view);
-		lightSourceShader.SetMat4("projection", projection);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		
+		for (int i = 0; i < 4; i++)
+		{
+			glm::mat4 lightModel = glm::mat4(1.0f);
+			lightModel = glm::translate(lightModel, pointLightPositions[i]);
+			lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+			lightSourceShader.SetMat4("model", lightModel);
+			lightSourceShader.SetMat4("view", view);
+			lightSourceShader.SetMat4("projection", projection);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		
 		glBindVertexArray(0);
 
