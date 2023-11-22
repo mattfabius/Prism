@@ -17,9 +17,11 @@ struct Vertex {
 struct Texture {
 	unsigned int id;
 	std::string type;
+	std::string path;
 };
 
-class Mesh {
+class Mesh 
+{
 public:
 	// mesh data
 	std::vector<Vertex> vertices;
