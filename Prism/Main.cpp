@@ -13,6 +13,7 @@
 #include "Camera.h"
 #include "Utils.h"
 #include "Collider.h"
+#include "Model.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -72,14 +73,19 @@ int main()
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
+	stbi_set_flip_vertically_on_load(true);
+
 	// enable depth testing -- show objects closer to camera occluding objects further from camera
 	glEnable(GL_DEPTH_TEST);
 
-	Shader defaultShader("default.vert", "default.frag");
+	//Shader defaultShader("default.vert", "default.frag");
 	Shader lightingShader("phong.vert", "phong.frag");
 	//Shader waterShader("test.vert", "test.frag");
 	Shader lightSourceShader("phong.vert", "lightSource.frag");
 	camera = Camera(cameraStartPos, true);
+
+	const char* backpackModelPath = "resources/models/backpack/backpack.obj";
+	Model ourModel(backpackModelPath);
 
 	/*
 	float vertices[] = {
@@ -311,24 +317,30 @@ int main()
 
 		glBindVertexArray(VAOs[0]);
 		
+		//glm::mat4 model = glm::mat4(1.0f);
+		//model = glm::translate(model, glm::vec3(0.0f, -0.6f, 0.0f));
+		//model = glm::scale(model, glm::vec3(0.8f, 0.8f, 0.8f));
+		//lightingShader.SetMat4("model", model);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, -0.6f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.8f, 0.8f, 0.8f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		lightingShader.SetMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		ourModel.Draw(lightingShader);
 
 		// cubes
-		for (unsigned int i = 0; i < 10; i++)
-		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			boxColliders[i] = Collider(cubePositions[i], glm::vec3(1.0f));
-			float angle = 20.0f * i;
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			lightingShader.SetMat4("model", model);
+		//for (unsigned int i = 0; i < 10; i++)
+		//{
+		//	glm::mat4 model = glm::mat4(1.0f);
+		//	model = glm::translate(model, cubePositions[i]);
+		//	boxColliders[i] = Collider(cubePositions[i], glm::vec3(1.0f));
+		//	float angle = 20.0f * i;
+		//	model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+		//	lightingShader.SetMat4("model", model);
 
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		//	glDrawArrays(GL_TRIANGLES, 0, 36);
+		//}
 
 		// ground plane
 		/*glBindVertexArray(VAOs[1]);
@@ -364,7 +376,8 @@ int main()
 	glDeleteVertexArrays(2, VAOs);
 	glDeleteBuffers(2, VBOs);
 	glDeleteBuffers(1, &EBO);
-	defaultShader.Delete();
+	lightingShader.Delete();
+	lightSourceShader.Delete();
 
 	// destory windows, free up allocated memory, and revert GLFW to uninitialized state
 	glfwTerminate();

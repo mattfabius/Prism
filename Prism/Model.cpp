@@ -1,6 +1,6 @@
 #include "Model.h"
 
-Model::Model(char* path)
+Model::Model(const char* path)
 {
 	loadModel(path);
 }
@@ -118,18 +118,33 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 		aiString str;
 		mat->GetTexture(type, i, &str);
 
-		Texture texture;
-		texture.id = loadTexture(str.C_Str(), directory);
-		texture.type = typeName;
-		texture.path = str.C_Str();
-		textures.push_back(texture);
+		textures.push_back(getOrLoadTexture(str.C_Str(), typeName));
 	}
 	return textures;
 }
 
-unsigned int Model::loadTexture(std::string fileName, std::string dir)
+Texture Model::getOrLoadTexture(const char* filePath, std::string typeName)
 {
-	std::string filePath = dir + fileName;
+	for (Texture texture : textures_loaded)
+	{
+		if (std::strcmp(texture.path.data(), filePath) == 0)
+		{
+			return texture;
+		}
+	}
+
+	Texture texture;
+	texture.id = LoadTextureFromFile(filePath, this->directory);
+	texture.type = typeName;
+	texture.path = filePath;
+	
+	this->textures_loaded.push_back(texture);
+	return texture;
+}
+
+unsigned int LoadTextureFromFile(const std::string& fileName, const std::string& dir)
+{
+	std::string filePath = dir + '/' + fileName;
 
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
